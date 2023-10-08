@@ -28,6 +28,9 @@ jobs:
             --health-retries 5
     steps:
 
+    - name: Check Runner Architecture
+      run: echo "Runner Architecture is ${{ runner.architecture }}"
+
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
@@ -37,6 +40,7 @@ jobs:
       run: |
         curl -L https://github.com/golang-migrate/migrate/releases/download/v4.16.2/migrate.linux-amd64.tar.gz | tar xvz
         sudo mv migrate /usr/bin/migrate
+        chmod +x /usr/bin/migrate
         which migrate
 
     - name: Run migrate db
@@ -45,3 +49,4 @@ jobs:
 
     - name: Test
       run: go test -v -cover ./...
+            
