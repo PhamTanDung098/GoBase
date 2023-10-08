@@ -11,7 +11,7 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
-    
+
     services:
         postgres:
           image: postgres:12
@@ -39,8 +39,9 @@ jobs:
         sudo mv migrate /usr/bin/migrate
         which migrate
 
-    - name: Run migrate on
-      run: make migrateup
+    - name: Run migrate db
+      run: |
+        migrate -path db/migration -database "postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable" -verbose up
 
     - name: Test
-      run: make test
+      run: go test -v -cover ./...
