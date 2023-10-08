@@ -28,9 +28,6 @@ jobs:
             --health-retries 5
     steps:
 
-    - name: Check Runner Architecture
-      run: echo "Runner Architecture is ${{ runner.architecture }}"
-
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
@@ -45,7 +42,7 @@ jobs:
 
     - name: Run migrate db
       run: |
-        migrate -path db/migration -database "postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable" -verbose up
+        migrate -path ../db/migration -database "postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable" -verbose up
 
     - name: Test
       run: go test -v -cover ./...
