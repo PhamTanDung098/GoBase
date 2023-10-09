@@ -39,6 +39,9 @@ jobs:
         sudo mv migrate /usr/bin/migrate
         chmod +x /usr/bin/migrate
         which migrate
+    
+    - name: Make migrate executable
+      run: chmod +x migrate
 
     - name: Run migrate db
       run: migrate -path db/migration -database "postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable" -verbose up
