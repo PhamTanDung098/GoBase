@@ -38,6 +38,15 @@ func (q *Queries) CreateTransfer(ctx context.Context, arg CreateTransferParams) 
 	return i, err
 }
 
+const deleteTransfer = `-- name: DeleteTransfer :exec
+DELETE FROM transfers WHERE id = $1
+`
+
+func (q *Queries) DeleteTransfer(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteTransfer, id)
+	return err
+}
+
 const getTransfer = `-- name: GetTransfer :one
 SELECT id, from_account_id, to_account_id, amount, created_at FROM transfers
 WHERE id = $1 LIMIT 1
@@ -74,7 +83,7 @@ func (q *Queries) ListTransfer(ctx context.Context, arg ListTransferParams) ([]T
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Transfers
+	items := []Transfers{}
 	for rows.Next() {
 		var i Transfers
 		if err := rows.Scan(
@@ -97,28 +106,19 @@ func (q *Queries) ListTransfer(ctx context.Context, arg ListTransferParams) ([]T
 	return items, nil
 }
 
-const deleteTransfer = `-- name: deleteTransfer :exec
-DELETE FROM transfers WHERE id = $1
-`
-
-func (q *Queries) deleteTransfer(ctx context.Context, id int64) error {
-	_, err := q.db.ExecContext(ctx, deleteTransfer, id)
-	return err
-}
-
-const updateTransfer = `-- name: updateTransfer :one
+const updateTransfer = `-- name: UpdateTransfer :one
 UPDATE transfers 
 SET amount = $1
 WHERE id = $2
 RETURNING id, from_account_id, to_account_id, amount, created_at
 `
 
-type updateTransferParams struct {
+type UpdateTransferParams struct {
 	Amount int64 `json:"amount"`
 	ID     int64 `json:"id"`
 }
 
-func (q *Queries) updateTransfer(ctx context.Context, arg updateTransferParams) (Transfers, error) {
+func (q *Queries) UpdateTransfer(ctx context.Context, arg UpdateTransferParams) (Transfers, error) {
 	row := q.db.QueryRowContext(ctx, updateTransfer, arg.Amount, arg.ID)
 	var i Transfers
 	err := row.Scan(

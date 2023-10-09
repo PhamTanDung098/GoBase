@@ -16,12 +16,12 @@ ORDER BY id
 LIMIT $1
 OFFSET $2;
 
--- name: updateEntries :one
+-- name: UpdateEntries :one
 UPDATE entries 
 SET amount = $1
 WHERE id = $2
 RETURNING *;
 
--- name: deleteEntries :exec
+-- name: DeleteEntries :exec
 DELETE FROM entries WHERE id = $1;
 

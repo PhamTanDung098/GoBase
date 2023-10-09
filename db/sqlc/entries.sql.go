@@ -35,6 +35,15 @@ func (q *Queries) CreateAEntries(ctx context.Context, arg CreateAEntriesParams) 
 	return i, err
 }
 
+const deleteEntries = `-- name: DeleteEntries :exec
+DELETE FROM entries WHERE id = $1
+`
+
+func (q *Queries) DeleteEntries(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteEntries, id)
+	return err
+}
+
 const getEntries = `-- name: GetEntries :one
 SELECT id, account_id, amount, created_at FROM entries
 WHERE id = $1 LIMIT 1
@@ -70,7 +79,7 @@ func (q *Queries) ListEntries(ctx context.Context, arg ListEntriesParams) ([]Ent
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Entries
+	items := []Entries{}
 	for rows.Next() {
 		var i Entries
 		if err := rows.Scan(
@@ -92,28 +101,19 @@ func (q *Queries) ListEntries(ctx context.Context, arg ListEntriesParams) ([]Ent
 	return items, nil
 }
 
-const deleteEntries = `-- name: deleteEntries :exec
-DELETE FROM entries WHERE id = $1
-`
-
-func (q *Queries) deleteEntries(ctx context.Context, id int64) error {
-	_, err := q.db.ExecContext(ctx, deleteEntries, id)
-	return err
-}
-
-const updateEntries = `-- name: updateEntries :one
+const updateEntries = `-- name: UpdateEntries :one
 UPDATE entries 
 SET amount = $1
 WHERE id = $2
 RETURNING id, account_id, amount, created_at
 `
 
-type updateEntriesParams struct {
+type UpdateEntriesParams struct {
 	Amount int64 `json:"amount"`
 	ID     int64 `json:"id"`
 }
 
-func (q *Queries) updateEntries(ctx context.Context, arg updateEntriesParams) (Entries, error) {
+func (q *Queries) UpdateEntries(ctx context.Context, arg UpdateEntriesParams) (Entries, error) {
 	row := q.db.QueryRowContext(ctx, updateEntries, arg.Amount, arg.ID)
 	var i Entries
 	err := row.Scan(

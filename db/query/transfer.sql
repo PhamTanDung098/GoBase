@@ -17,12 +17,12 @@ ORDER BY id
 LIMIT $1
 OFFSET $2;
 
--- name: updateTransfer :one
+-- name: UpdateTransfer :one
 UPDATE transfers 
 SET amount = $1
 WHERE id = $2
 RETURNING *;
 
--- name: deleteTransfer :exec
+-- name: DeleteTransfer :exec
 DELETE FROM transfers WHERE id = $1;
 
